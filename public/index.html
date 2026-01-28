@@ -183,6 +183,34 @@
             font-size: 0.95rem;
         }
 
+        .install-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .copy-button {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            border: 1px solid var(--accent-cyan);
+            background: transparent;
+            color: var(--accent-cyan);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-button:hover {
+            background: rgba(57, 186, 230, 0.1);
+        }
+
+        .copy-button.copied {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
         .terminal-line {
             margin-bottom: 0.5rem;
             opacity: 0;
@@ -369,6 +397,13 @@
             margin-top: 0.5rem;
         }
 
+        .intro {
+            margin: 2rem auto 0;
+            max-width: 720px;
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
         /* Footer */
         footer {
             padding: 4rem 0 2rem;
@@ -401,6 +436,16 @@
             color: var(--accent-green);
         }
 
+        .footer-content a {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-content a:hover {
+            color: var(--accent-green);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .hero {
@@ -410,6 +455,10 @@
             .terminal-body {
                 padding: 1rem;
                 font-size: 0.85rem;
+            }
+
+            .install-row {
+                align-items: flex-start;
             }
 
             .features {
@@ -488,7 +537,11 @@
                 </div>
                 <div class="terminal-body">
                     <div class="terminal-line">
-                        <span class="prompt">$</span> <span class="command">curl -fsSL https://get.jorin.ai | bash</span>
+                        <div class="install-row">
+                            <span class="prompt">$</span>
+                            <span class="command">curl -fsSL https://get.jorin.ai | bash</span>
+                            <button class="copy-button" type="button" data-copy="curl -fsSL https://get.jorin.ai | bash">Copy</button>
+                        </div>
                     </div>
                     <div class="terminal-line output">
                         Installing jorin...
@@ -506,6 +559,12 @@
             </div>
         </section>
 
+        <section class="container">
+            <p class="intro">
+                Jorin isn't designed to be your day-to-day coding agent for big projects. Instead, Jorin is designed to be ran in constrained environments like containers and on mobile devices. Jorin also serves as a research prototype for agent techniques such as Skills to Agents and Agent Situations.
+            </p>
+        </section>
+
         <section class="features">
             <div class="container">
                 <h2>Built for Developers</h2>
@@ -518,27 +577,37 @@
                     <div class="feature-card">
                         <div class="feature-icon">🔧</div>
                         <h3>Composable Tools</h3>
-                        <p>Shell, read_file, write_file, apply_patch, http_get. Built to integrate seamlessly with your workflow.</p>
+                        <p>Read and edit files, execute commands and fetch web pages.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📄</div>
+                        <h3>AGENTS.md Context</h3>
+                        <p>Drop instructions anywhere in your repo to guide how Jorin behaves and what it should prioritize.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🧠</div>
+                        <h3>Skills</h3>
+                        <p>Reusable, documented workflows that let Jorin pick the right playbook for each task.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🧭</div>
+                        <h3>Agent Situations</h3>
+                        <p>Dynamic situational awareness that adapts to the environment and task at hand.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🙃</div>
+                        <h3>Ralph Wiggum Mode</h3>
+                        <p>Recursive loops for chaotic creativity and iterative retries when you want the weird path.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📜</div>
+                        <h3>Executable Markdown</h3>
+                        <p>Run prompts straight from markdown with <code>#!/usr/bin/env jorin</code> front-matter.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🤖</div>
                         <h3>OpenAI Compatible</h3>
                         <p>Works with any OpenAI-compatible API. Bring your own model or use hosted services.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">📜</div>
-                        <h3>Script-Friendly</h3>
-                        <p>Designed as a composable CLI tool for shell scripts. Pipe input, capture output, chain commands.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🔄</div>
-                        <h3>Ralph Mode</h3>
-                        <p>Iterative, self-referential AI loops that auto-repeat until completion or max tries.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🧪</div>
-                        <h3>Research Prototype</h3>
-                        <p>Implements cutting-edge agent techniques like Skills to Agents and Agent Situations.</p>
                     </div>
                 </div>
             </div>
@@ -568,7 +637,7 @@
         <div class="container">
             <div class="footer-content">
                 <div>
-                    <p>&copy; 2025 Jorin <span class="pronunciation">(pronounced "jorin")</span></p>
+                    <p>&copy; 2025 <a href="https://dave.engineer">Dave Hulbert</a> <span class="pronunciation">(pronounced "jorin")</span></p>
                     <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">MIT License</p>
                 </div>
                 <div class="footer-links">
@@ -580,6 +649,53 @@
             </div>
         </div>
     </footer>
+    <script>
+        const copyButtons = document.querySelectorAll('.copy-button');
+
+        copyButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const command = button.dataset.copy;
+                const originalLabel = button.textContent;
+
+                const handleSuccess = () => {
+                    button.textContent = 'Copied!';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = originalLabel;
+                        button.classList.remove('copied');
+                    }, 1500);
+                };
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(command)
+                        .then(handleSuccess)
+                        .catch(() => {
+                            const textarea = document.createElement('textarea');
+                            textarea.value = command;
+                            textarea.setAttribute('readonly', '');
+                            textarea.style.position = 'absolute';
+                            textarea.style.left = '-9999px';
+                            document.body.appendChild(textarea);
+                            textarea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textarea);
+                            handleSuccess();
+                        });
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = command;
+                    textarea.setAttribute('readonly', '');
+                    textarea.style.position = 'absolute';
+                    textarea.style.left = '-9999px';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    handleSuccess();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
   
