@@ -691,12 +691,14 @@
                 colors: {
                     background: 0x0a0e14,
                     voxel: 0x39bae6,
+                    voxelFalling: 0xff8f40,
                     stroke: 0x7fd962,
                     gridPlane: 0x131920,
                     gridLines: 0x1f2937
                 },
                 gridSize: 5,
                 voxelSize: 1,
+                gravity: 18,
                 data: {
                     left: [18, 23],
                     right: [8, 13, 18, 23],
@@ -726,6 +728,7 @@
             scene.add(dirLight);
 
             const logoGroup = new THREE.Group();
+            logoGroup.scale.set(1.5, 1.5, 1.5);
             scene.add(logoGroup);
 
             const offset = -(CONFIG.gridSize * CONFIG.voxelSize) / 2;
@@ -774,18 +777,37 @@
             geometryGroup.add(gridBottom);
 
             const voxelGeo = new THREE.BoxGeometry(1, 1, 1);
-            const voxelMat = new THREE.MeshStandardMaterial({
-                color: CONFIG.colors.voxel,
-                roughness: 0.2,
-                metalness: 0.1
-            });
+            const voxels = [];
 
             const createVoxel = (x, y, z) => {
+                const voxelMat = new THREE.MeshStandardMaterial({
+                    color: CONFIG.colors.voxelFalling,
+                    roughness: 0.25,
+                    metalness: 0.12
+                });
                 const voxel = new THREE.Mesh(voxelGeo, voxelMat);
-                voxel.position.set(x + 0.5, y + 0.5, z + 0.5);
+                const target = new THREE.Vector3(x + 0.5, y + 0.5, z + 0.5);
+                const randomOffset = new THREE.Vector3(
+                    (Math.random() - 0.5) * 2.2,
+                    6 + Math.random() * 6,
+                    (Math.random() - 0.5) * 2.2
+                );
+                voxel.position.copy(target).add(randomOffset);
                 voxel.castShadow = true;
                 voxel.receiveShadow = true;
                 geometryGroup.add(voxel);
+                voxels.push({
+                    mesh: voxel,
+                    target,
+                    velocity: new THREE.Vector3(
+                        (Math.random() - 0.5) * 2,
+                        -(1 + Math.random() * 2),
+                        (Math.random() - 0.5) * 2
+                    ),
+                    delay: Math.random() * 0.6,
+                    locked: false,
+                    started: false
+                });
             };
 
             const getGridPos = (id) => {
@@ -830,9 +852,47 @@
             geometryGroup.add(tubeMesh);
 
             const clock = new THREE.Clock();
+            let dropStartTime = null;
+            let animationActive = false;
 
             const renderFrame = () => {
+                const delta = clock.getDelta();
                 const time = clock.getElapsedTime();
+                if (animationActive && dropStartTime !== null) {
+                    const elapsed = time - dropStartTime;
+                    voxels.forEach((voxel) => {
+                        if (voxel.locked) {
+                            return;
+                        }
+                        if (!voxel.started) {
+                            if (elapsed >= voxel.delay) {
+                                voxel.started = true;
+                            } else {
+                                return;
+                            }
+                        }
+                        voxel.velocity.y -= CONFIG.gravity * delta;
+                        voxel.mesh.position.y += voxel.velocity.y * delta;
+                        voxel.mesh.position.x = THREE.MathUtils.damp(
+                            voxel.mesh.position.x,
+                            voxel.target.x,
+                            5,
+                            delta
+                        );
+                        voxel.mesh.position.z = THREE.MathUtils.damp(
+                            voxel.mesh.position.z,
+                            voxel.target.z,
+                            5,
+                            delta
+                        );
+                        if (voxel.mesh.position.y <= voxel.target.y) {
+                            voxel.mesh.position.copy(voxel.target);
+                            voxel.velocity.set(0, 0, 0);
+                            voxel.mesh.material.color.setHex(CONFIG.colors.voxel);
+                            voxel.locked = true;
+                        }
+                    });
+                }
                 logoGroup.position.y = Math.sin(time * 1.5) * 0.5;
                 logoGroup.rotation.y = Math.sin(time * 0.5) * 0.1;
                 renderer.render(scene, camera);
@@ -844,7 +904,7 @@
                     return;
                 }
                 const aspect = clientWidth / clientHeight;
-                const d = 10;
+                const d = 8.5;
                 camera.left = -d * aspect;
                 camera.right = d * aspect;
                 camera.top = d;
@@ -857,6 +917,25 @@
             resizeRenderer();
             const resizeObserver = new ResizeObserver(resizeRenderer);
             resizeObserver.observe(canvas);
+
+            const startDropAnimation = () => {
+                if (animationActive) {
+                    return;
+                }
+                dropStartTime = clock.getElapsedTime();
+                animationActive = true;
+            };
+
+            const observer = new IntersectionObserver(
+                ([entry]) => {
+                    if (entry.isIntersecting) {
+                        startDropAnimation();
+                        observer.disconnect();
+                    }
+                },
+                { threshold: 0.4 }
+            );
+            observer.observe(canvas);
 
             const animate = () => {
                 requestAnimationFrame(animate);
